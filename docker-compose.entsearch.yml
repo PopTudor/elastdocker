@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+    kibana:
+      depends_on:
+        - "elasticsearch"
+        - "enterprisesearch"
+      environment:
+        ENTERPRISE_SEARCH_HOST_PORT: ${ENTERPRISE_HOST}:${ENTERPRISE_PORT}
+    enterprisesearch:
+      image: docker.elastic.co/enterprise-search/enterprise-search:${ELK_VERSION}
+      restart: unless-stopped
+      depends_on:
+        - "elasticsearch"
+      volumes:
+        - ./enterprisesearch/config/enterprise-search.yml:/usr/share/enterprise-search/config/enterprise-search.yml:ro
+      environment:
+        ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+        ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+        ELASTICSEARCH_HOST_PORT: ${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+        ENTERPRISE_SEARCH_HOST_PORT: ${ENTERPRISE_HOST}:${ENTERPRISE_PORT}
+        KIBANA_HOST_PORT: ${KIBANA_HOST}:${KIBANA_PORT}
+        JAVA_OPTS: "-Xms512m -Xmx512m"
+        ENT_SEARCH_DEFAULT_PASSWORD: ${ELASTIC_PASSWORD}
+      ports:
+        - "3002:3002"
+      secrets:
+        - source: elastic.ca
+          target: /certs/ca.crt
+        - source: kibana.certificate
+          target: /certs/kibana.crt
+        - source: kibana.key
+          target: /certs/kibana.key
+      networks:
+        - elastic
