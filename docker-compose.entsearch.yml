@@ -30,5 +30,3 @@ services:
           target: /certs/kibana.crt
         - source: kibana.key
           target: /certs/kibana.key
-      networks:
-        - elastic
